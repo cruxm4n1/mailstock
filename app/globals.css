@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background: #0f0f0f;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background: #0f0f0f;
+  color: #f5f5f5;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+select option {
+  background: #171717;
+  color: #f5f5f5;
+}
+
+::selection {
+  background: rgba(0, 212, 170, 0.28);
+}
+
+@layer components {
+  .field-label {
+    @apply mb-1.5 block text-sm font-medium text-zinc-300;
+  }
+
+  .field-input {
+    @apply h-10 w-full rounded-md border border-zinc-800 bg-[#141414] px-3 text-sm text-text outline-none transition placeholder:text-zinc-600 hover:border-zinc-700 focus:border-primary/70 focus:bg-[#171717] focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:bg-zinc-900 disabled:text-zinc-500;
+  }
+
+  .field-select {
+    @apply cursor-pointer appearance-none pr-10;
+  }
+
+  .field-error {
+    @apply mt-1.5 text-xs font-medium text-danger;
+  }
+
+  .panel {
+    @apply rounded-lg border border-zinc-800 bg-[#181818] shadow-panel;
+  }
+
+  .section-title {
+    @apply text-base font-semibold text-zinc-100;
+  }
+
+  .secondary-button {
+    @apply inline-flex h-10 items-center justify-center gap-2 rounded-md border border-zinc-800 bg-[#151515] px-3 text-sm font-semibold text-zinc-100 transition hover:border-zinc-700 hover:bg-[#1b1b1b] disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .primary-button {
+    @apply inline-flex h-10 items-center justify-center gap-2 rounded-md border border-primary/20 bg-primary px-3 text-sm font-semibold text-zinc-950 transition hover:bg-[#1fe2bb] disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .danger-button {
+    @apply inline-flex h-9 items-center justify-center gap-2 rounded-md border border-danger/35 bg-danger/10 px-3 text-sm font-semibold text-danger transition hover:bg-danger/15 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+}

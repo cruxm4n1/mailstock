@@ -63,8 +63,19 @@ export function generateShippingEmail(values: ShippingFormValues): GeneratedEmai
   if (!clean(values.recipient.address)) missing.push("Adresse complète");
   if (!clean(values.recipient.phone)) missing.push("Numéro de téléphone");
   if (!clean(values.recipient.email)) missing.push("Email");
-  if (!clean(values.parcel.parcels)) missing.push("Nombre de colis");
-  if (!clean(values.parcel.weight)) missing.push("Poids total");
+  const parcelCount = quantityAsNumber(values.parcel.parcels);
+  const parcelWeights = values.parcel.weights.map((weight) => clean(weight.value));
+
+  if (!parcelCount) missing.push("Nombre de colis");
+  if (!parcelWeights.some(Boolean)) missing.push("Poids par colis");
+  if (parcelCount && parcelWeights.length < parcelCount) {
+    missing.push(`Poids pour ${parcelCount - parcelWeights.length} colis`);
+  }
+  parcelWeights.forEach((weight, index) => {
+    if (!weight && parcelCount && index < parcelCount) {
+      missing.push(`Poids du colis n°${index + 1}`);
+    }
+  });
   if (!values.models.length) missing.push("Au moins un modèle");
   if (!displayReason) missing.push("Motif de l'expédition");
   if (values.reason === "Other" && !clean(values.otherReason)) missing.push("Détail du motif Autre");
@@ -151,9 +162,18 @@ export function generateShippingEmail(values: ShippingFormValues): GeneratedEmai
     fieldLine("Email :", values.recipient.email)
   ]);
 
+  const visibleWeights = parcelWeights
+    .map((weight, index) => (weight ? `Poids colis n°${index + 1} : ${weight} kg` : null))
+    .filter(Boolean);
+  const totalWeight = parcelWeights.reduce((total, weight) => {
+    const parsed = Number(weight.replace(",", "."));
+    return Number.isFinite(parsed) && parsed > 0 ? total + parsed : total;
+  }, 0);
+
   const parcelSection = buildSection("Colis :", [
     fieldLine("Nombre de colis :", values.parcel.parcels),
-    clean(values.parcel.weight) ? `Poids total : ${clean(values.parcel.weight)} kg` : null,
+    ...visibleWeights,
+    totalWeight > 0 ? `Poids total : ${totalWeight.toLocaleString("fr-FR")} kg` : null,
     dimensions ? `Dimensions : ${dimensions}` : null
   ]);
 

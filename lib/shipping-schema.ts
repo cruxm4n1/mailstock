@@ -10,6 +10,10 @@ export const reasonLabels: Record<(typeof reasonOptions)[number], string> = {
   Other: "Autre"
 };
 
+export const parcelWeightSchema = z.object({
+  value: z.string()
+});
+
 export const serialNumberSchema = z.object({
   value: z.string()
 });
@@ -32,7 +36,7 @@ export const shippingFormSchema = z.object({
   }),
   parcel: z.object({
     parcels: z.string(),
-    weight: z.string(),
+    weights: z.array(parcelWeightSchema),
     length: z.string(),
     width: z.string(),
     height: z.string()
@@ -56,6 +60,10 @@ export const shippingFormSchema = z.object({
 export type ShippingFormValues = z.infer<typeof shippingFormSchema>;
 export type Reason = (typeof reasonOptions)[number];
 
+export const emptyParcelWeight = (): ShippingFormValues["parcel"]["weights"][number] => ({
+  value: ""
+});
+
 export const emptyModel = (): ShippingFormValues["models"][number] => ({
   modelName: "",
   quantity: "1",
@@ -74,7 +82,7 @@ export const defaultShippingValues: ShippingFormValues = {
   },
   parcel: {
     parcels: "1",
-    weight: "",
+    weights: [emptyParcelWeight()],
     length: "",
     width: "",
     height: ""

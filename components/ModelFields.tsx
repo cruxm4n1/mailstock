@@ -3,6 +3,7 @@
 import { Plus, Trash2 } from "lucide-react";
 import { useFieldArray, type Control, type UseFormRegister } from "react-hook-form";
 import { Field } from "@/components/Field";
+import { modelNameSuggestions } from "@/lib/model-suggestions";
 import type { ShippingFormValues } from "@/lib/shipping-schema";
 
 type ModelFieldsProps = {
@@ -30,7 +31,19 @@ export function ModelFields({ control, register, modelIndex, onRemove, canRemove
       </div>
 
       <div className="grid gap-3 sm:grid-cols-[1fr_140px]">
-        <Field label="Nom du modèle" placeholder="MacBook Pro 14 M3" {...register(`models.${modelIndex}.modelName`)} />
+        <div>
+          <Field
+            label="Nom du modèle"
+            list={`model-name-suggestions-${modelIndex}`}
+            placeholder="Choisir une proposition ou saisir un modèle"
+            {...register(`models.${modelIndex}.modelName`)}
+          />
+          <datalist id={`model-name-suggestions-${modelIndex}`}>
+            {modelNameSuggestions.map((modelName) => (
+              <option key={modelName} value={modelName} />
+            ))}
+          </datalist>
+        </div>
         <Field
           label="Quantité"
           inputMode="numeric"

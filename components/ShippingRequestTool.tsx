@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FileText, Plus } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
@@ -13,6 +13,7 @@ import { generateShippingEmail } from "@/lib/email-generator";
 import {
   defaultShippingValues,
   emptyModel,
+  emptyParcelWeight,
   shippingFormSchema,
   type ShippingFormValues
 } from "@/lib/shipping-schema";
@@ -28,10 +29,29 @@ export function ShippingRequestTool() {
   const { register, control, reset } = form;
   const values = useWatch({ control, defaultValue: defaultShippingValues }) as ShippingFormValues;
   const models = useFieldArray({ control, name: "models" });
+  const { fields: parcelWeightFields, replace: replaceParcelWeights } = useFieldArray({
+    control,
+    name: "parcel.weights"
+  });
   const copyState = useCopyState();
 
   const generated = useMemo(() => generateShippingEmail(values), [values]);
   const reason = values.reason;
+
+  useEffect(() => {
+    const requestedCount = Number.parseInt(values.parcel.parcels, 10);
+    const parcelCount = Number.isFinite(requestedCount) && requestedCount > 0 ? requestedCount : 1;
+    const currentWeights = values.parcel.weights ?? [];
+
+    if (currentWeights.length === parcelCount) {
+      return;
+    }
+
+    replaceParcelWeights(
+      Array.from({ length: parcelCount }, (_, index) => currentWeights[index] ?? emptyParcelWeight())
+    );
+  }, [replaceParcelWeights, values.parcel.parcels, values.parcel.weights]);
+
   const handleGenerate = () => {
     setGenerationNote(
       generated.missing.length
@@ -55,10 +75,6 @@ export function ShippingRequestTool() {
             <button className="primary-button w-full sm:w-auto" type="button" onClick={handleGenerate}>
               <FileText size={16} />
               Générer l&apos;email
-            </button>
-            <button className="secondary-button w-full sm:w-auto" type="button" onClick={() => models.append(emptyModel())}>
-              <Plus size={16} />
-              Ajouter un modèle
             </button>
           </div>
         </header>
@@ -89,15 +105,18 @@ export function ShippingRequestTool() {
                   type="number"
                   {...register("parcel.parcels")}
                 />
-                <Field
-                  label="Poids total en kg"
-                  inputMode="decimal"
-                  min="0"
-                  placeholder="4.5"
-                  step="0.1"
-                  type="number"
-                  {...register("parcel.weight")}
-                />
+                {parcelWeightFields.map((field, index) => (
+                  <Field
+                    key={field.id}
+                    label={`Poids colis n°${index + 1} en kg`}
+                    inputMode="decimal"
+                    min="0"
+                    placeholder="4.5"
+                    step="0.1"
+                    type="number"
+                    {...register(`parcel.weights.${index}.value`)}
+                  />
+                ))}
               </div>
 
               <div className="mt-4 grid gap-3 sm:grid-cols-3">
@@ -108,9 +127,13 @@ export function ShippingRequestTool() {
             </section>
 
             <section className="panel p-4 sm:p-5">
-              <div className="flex items-center justify-between gap-3">
-              <h2 className="section-title">Contenu</h2>
-                <button className="secondary-button" type="button" onClick={() => models.append(emptyModel())}>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="section-title">Contenu</h2>
+                <button
+                  className="secondary-button w-full sm:w-auto"
+                  type="button"
+                  onClick={() => models.append(emptyModel())}
+                >
                   <Plus size={16} />
                   Ajouter un modèle
                 </button>

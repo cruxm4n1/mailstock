@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { FileText, Plus } from "lucide-react";
+import { FileText } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { EmailPreview } from "@/components/EmailPreview";
@@ -12,7 +12,6 @@ import { useCopyState } from "@/components/useCopyState";
 import { generateShippingEmail } from "@/lib/email-generator";
 import {
   defaultShippingValues,
-  emptyModel,
   emptyParcelWeight,
   shippingFormSchema,
   type ShippingFormValues
@@ -29,10 +28,7 @@ export function ShippingRequestTool() {
   const { register, control, reset } = form;
   const values = useWatch({ control, defaultValue: defaultShippingValues }) as ShippingFormValues;
   const models = useFieldArray({ control, name: "models" });
-  const { fields: parcelWeightFields, replace: replaceParcelWeights } = useFieldArray({
-    control,
-    name: "parcel.weights"
-  });
+  const { fields: parcelWeightFields, replace: replaceParcelWeights } = useFieldArray({ control, name: "parcel.weights" });
   const copyState = useCopyState();
 
   const generated = useMemo(() => generateShippingEmail(values), [values]);
@@ -47,9 +43,7 @@ export function ShippingRequestTool() {
       return;
     }
 
-    replaceParcelWeights(
-      Array.from({ length: parcelCount }, (_, index) => currentWeights[index] ?? emptyParcelWeight())
-    );
+    replaceParcelWeights(Array.from({ length: parcelCount }, (_, index) => currentWeights[index] ?? emptyParcelWeight()));
   }, [replaceParcelWeights, values.parcel.parcels, values.parcel.weights]);
 
   const handleGenerate = () => {
@@ -127,13 +121,7 @@ export function ShippingRequestTool() {
             </section>
 
             <section className="panel p-4 sm:p-5">
-              <div className="flex items-center justify-between gap-3">
-                <h2 className="section-title">Contenu</h2>
-                <button className="secondary-button" type="button" onClick={() => models.append(emptyModel())}>
-                  <Plus size={16} />
-                  Ajouter un modèle
-                </button>
-              </div>
+              <h2 className="section-title">Contenu</h2>
 
               <div className="mt-4 space-y-3">
                 {models.fields.map((field, index) => (

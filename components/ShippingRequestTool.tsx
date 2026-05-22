@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { FileText } from "lucide-react";
+import { FileText, Plus } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { EmailPreview } from "@/components/EmailPreview";
@@ -14,7 +14,8 @@ import {
   defaultShippingValues,
   emptyParcelWeight,
   shippingFormSchema,
-  type ShippingFormValues
+  type ShippingFormValues,
+  emptyModel
 } from "@/lib/shipping-schema";
 
 export function ShippingRequestTool() {
@@ -134,6 +135,10 @@ export function ShippingRequestTool() {
                     canRemove={models.fields.length > 1}
                   />
                 ))}
+                <button className="secondary-button h-9" type="button" onClick={() => models.append(emptyModel())}>
+                  <Plus size={15} />
+                  Ajouter un modèle
+                </button>
               </div>
             </section>
 
